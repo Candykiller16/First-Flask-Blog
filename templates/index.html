@@ -1,13 +1,15 @@
-<h1>Hello World!!!</h1>
+{% extends 'base.html' %}
+{% block content %}
 
 <p>This is first page</p>
 
 <p>It works!</p>
 
-{% for pizza in pizzas %}
-    {% if pizza == 16 %}
-        <p>{{ pizza + 100 }}</p>
-    {% else %}
-        <p>{{ pizza|upper }}</p>
-    {% endif %}
-{% endfor %}
+    {% for pizza in pizzas %}
+        {% if pizza == 16 %}
+            <p>{{ pizza + 100 }}</p>
+        {% else %}
+            <p>{{ pizza|upper }}</p>
+        {% endif %}
+    {% endfor %}
+{% endblock content %}
