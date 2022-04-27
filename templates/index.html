@@ -3,3 +3,11 @@
 <p>This is first page</p>
 
 <p>It works!</p>
+
+{% for pizza in pizzas %}
+    {% if pizza == 16 %}
+        <p>{{ pizza + 100 }}</p>
+    {% else %}
+        <p>{{ pizza|upper }}</p>
+    {% endif %}
+{% endfor %}
