@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash
+from flask import Flask, render_template, flash, request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
@@ -103,3 +103,22 @@ def add_user():
                            email=email,
                            form=form,
                            all_users=all_users)
+
+# Update User in Database
+@app.route('/update/<int:id>', methods=['GET', 'POST'])
+def update(id):
+    form = UserForm()
+    user = UsersModel.query.get_or_404(id)
+    if request.method == 'POST':
+        user.name = request.form['name']
+        user.email = request.form['email']
+        try:
+            db.session.commit()
+            flash("User updated successfully")
+            return render_template('update.html', form=form, user=user)
+        except:
+            flash("Error! Try again")
+            return render_template('update.html', form=form, user=user)
+    else:
+        return render_template('update.html', form=form, user=user)
+
