@@ -1,11 +1,36 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, flash
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 # Create a Flask Instance
 app = Flask(__name__)
+# Database
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.sqlite"
+# Secret Key
 app.config['SECRET_KEY'] = 'This is my secret key'
+
+db = SQLAlchemy(app)
+
+
+# Model
+class UsersModel(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), unique=True, nullable=False)
+    email = db.Column(db.String(200), unique=True, nullable=False)
+    date_added = db.Column(db.DateTime(), default=datetime.utcnow)
+
+    def __repr__(self):
+        return '<Name %r>' % self.name
+
+
+# Users Form
+class UserForm(FlaskForm):
+    name = StringField("Enter your name", validators=[DataRequired()])
+    email = StringField("Enter your email", validators=[DataRequired()])
+    submit = SubmitField("Submit")
 
 
 # Create a Form Class
@@ -49,6 +74,32 @@ def name():
     if form.validate_on_submit():
         name = form.name.data
         form.name.data = ""
+        flash("Form was submitted")
     return render_template('name.html',
                            name=name,
                            form=form)
+
+
+@app.route('/users/add', methods=['GET', 'POST'])
+def add_user():
+    name = None
+    email = None
+    form = UserForm()
+    # Validate Data form Form
+    if form.validate_on_submit():
+        user = UsersModel.query.filter_by(email=form.email.data).first()
+        if user is None:
+            user = UsersModel(name=form.name.data, email=form.email.data)
+            db.session.add(user)
+            db.session.commit()
+        name = form.name.data
+        form.name.data = ""
+        email = form.email.data
+        form.email.data = ""
+        flash("User was added successfully")
+    all_users = UsersModel.query.order_by(UsersModel.date_added)
+    return render_template('add_user.html',
+                           name=name,
+                           email=email,
+                           form=form,
+                           all_users=all_users)
