@@ -4,6 +4,7 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from flask_migrate import Migrate
 
 # Create a Flask Instance
 app = Flask(__name__)
@@ -13,6 +14,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.sqlite"
 app.config['SECRET_KEY'] = 'This is my secret key'
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 
 # Model
@@ -20,6 +22,7 @@ class UsersModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), unique=True, nullable=False)
     email = db.Column(db.String(200), unique=True, nullable=False)
+    favourite_color = db.Column(db.String(200))
     date_added = db.Column(db.DateTime(), default=datetime.utcnow)
 
     def __repr__(self):
@@ -30,6 +33,7 @@ class UsersModel(db.Model):
 class UserForm(FlaskForm):
     name = StringField("Enter your name", validators=[DataRequired()])
     email = StringField("Enter your email", validators=[DataRequired()])
+    favourite_color = StringField("Enter your favourite color", validators=[DataRequired()])
     submit = SubmitField("Submit")
 
 
@@ -69,6 +73,8 @@ def server_problem(e):
 @app.route('/name', methods=['GET', 'POST'])
 def name():
     name = None
+    email = None
+
     form = NamerForm()
     # Validate Data form Form
     if form.validate_on_submit():
@@ -83,26 +89,25 @@ def name():
 @app.route('/users/add', methods=['GET', 'POST'])
 def add_user():
     name = None
-    email = None
     form = UserForm()
-    # Validate Data form Form
+    # Validate Data from Form
     if form.validate_on_submit():
         user = UsersModel.query.filter_by(email=form.email.data).first()
         if user is None:
-            user = UsersModel(name=form.name.data, email=form.email.data)
+            user = UsersModel(name=form.name.data, email=form.email.data, favourite_color=form.favourite_color.data)
             db.session.add(user)
             db.session.commit()
         name = form.name.data
         form.name.data = ""
-        email = form.email.data
         form.email.data = ""
+        form.favourite_color.data = ""
         flash("User was added successfully")
     all_users = UsersModel.query.order_by(UsersModel.date_added)
     return render_template('add_user.html',
                            name=name,
-                           email=email,
                            form=form,
                            all_users=all_users)
+
 
 # Update User in Database
 @app.route('/update/<int:id>', methods=['GET', 'POST'])
@@ -112,6 +117,7 @@ def update(id):
     if request.method == 'POST':
         user.name = request.form['name']
         user.email = request.form['email']
+        user.favourite_color = request.form['favourite_color']
         try:
             db.session.commit()
             flash("User updated successfully")
@@ -121,4 +127,3 @@ def update(id):
             return render_template('update.html', form=form, user=user)
     else:
         return render_template('update.html', form=form, user=user)
-

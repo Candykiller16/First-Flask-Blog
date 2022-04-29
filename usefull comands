@@ -1,0 +1,10 @@
+export FLASK_ENV=development
+export FLASK_APP=hello.py
+flask run
+
+
+# Migrations
+pip install Flask-Migrate
+flask db init - add folder for migrations in your project
+$ flask db migrate -m "Initial migration." - generate an initial migration
+$ flask db upgrade - apply the migration to the database

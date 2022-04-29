@@ -11,3 +11,7 @@ body {
     font-size: 30px;
     color: darkred;
 }
+
+a {
+    text-decoration: none;
+}

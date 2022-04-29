@@ -16,6 +16,7 @@
       <th scope="col">Id</th>
       <th scope="col">Name</th>
       <th scope="col">Email</th>
+      <th scope="col">Color</th>
     </tr>
   </thead>
     {% for user in all_users %}
@@ -24,6 +25,7 @@
       <th scope="row">{{user.id}}</th>
       <td>{{ url_for('update', id=user.id) }}</td>
       <td>{{user.email}}</td>
+      <td>{{user.favourite_color}}</td>
     </tr>
   </tbody>
     {% endfor %}
@@ -41,6 +43,9 @@
         {{ form.email.label(class="form-label") }}
         {{ form.email(class="form-control") }}
         <br>
+        {{ form.favourite_color.label(class="form-label") }}
+        {{ form.favourite_color(class="form-control") }}
+        <br>
         {{ form.submit(class="btn btn-secondary") }}
     </form>
 </div>
@@ -53,6 +58,7 @@
       <th scope="col">Id</th>
       <th scope="col">Name</th>
       <th scope="col">Email</th>
+      <th scope="col">Color</th>
     </tr>
   </thead>
     {% for user in all_users %}
@@ -61,6 +67,7 @@
       <th scope="row">{{user.id}}</th>
       <td><a href="{{ url_for('update', id=user.id) }}">{{user.name}}</a></td>
       <td>{{user.email}}</td>
+      <td>{{user.favourite_color}}</td>
     </tr>
   </tbody>
     {% endfor %}
