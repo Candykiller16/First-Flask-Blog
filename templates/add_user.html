@@ -23,7 +23,7 @@
   <tbody>
     <tr>
       <th scope="row">{{user.id}}</th>
-      <td>{{ url_for('update', id=user.id) }}</td>
+      <td><a href="{{ url_for('update', id=user.id) }}">{{user.name}}</a></td>
       <td>{{user.email}}</td>
       <td>{{user.favourite_color}}</td>
     </tr>
@@ -68,6 +68,7 @@
       <td><a href="{{ url_for('update', id=user.id) }}">{{user.name}}</a></td>
       <td>{{user.email}}</td>
       <td>{{user.favourite_color}}</td>
+      <td><a class="btn btn-danger"     href="{{ url_for('delete', id=user.id) }}">Delete</a></td>
     </tr>
   </tbody>
     {% endfor %}
