@@ -1,7 +1,7 @@
 from flask import Flask, render_template, flash, request
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms import StringField, SubmitField, PasswordField
+from wtforms.validators import DataRequired, EqualTo, Length
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_migrate import Migrate
@@ -47,6 +47,10 @@ class UserForm(FlaskForm):
     name = StringField("Enter your name", validators=[DataRequired()])
     email = StringField("Enter your email", validators=[DataRequired()])
     favourite_color = StringField("Enter your favourite color", validators=[DataRequired()])
+    password_hash = PasswordField("Enter your password", validators=[DataRequired(),
+                                                                     EqualTo('password_hash2',
+                                                                             message='Passwords Must Match')])
+    password_hash2 = PasswordField("Submit your password", validators=[DataRequired()])
     submit = SubmitField("Submit")
 
 
@@ -107,13 +111,18 @@ def add_user():
     if form.validate_on_submit():
         user = UsersModel.query.filter_by(email=form.email.data).first()
         if user is None:
-            user = UsersModel(name=form.name.data, email=form.email.data, favourite_color=form.favourite_color.data)
+            hashed_password = generate_password_hash(form.password_hash.data, 'sha256')
+            user = UsersModel(name=form.name.data,
+                              email=form.email.data,
+                              favourite_color=form.favourite_color.data,
+                              password_hash=hashed_password)
             db.session.add(user)
             db.session.commit()
         name = form.name.data
         form.name.data = ""
         form.email.data = ""
         form.favourite_color.data = ""
+        form.password_hash.data = ""
         flash("User was added successfully")
     all_users = UsersModel.query.order_by(UsersModel.date_added)
     return render_template('add_user.html',

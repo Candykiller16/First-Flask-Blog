@@ -17,6 +17,7 @@
       <th scope="col">Name</th>
       <th scope="col">Email</th>
       <th scope="col">Color</th>
+      <th scope="col">Password</th>
     </tr>
   </thead>
     {% for user in all_users %}
@@ -26,6 +27,7 @@
       <td><a href="{{ url_for('update', id=user.id) }}">{{user.name}}</a></td>
       <td>{{user.email}}</td>
       <td>{{user.favourite_color}}</td>
+      <td>{{user.password_hash}}</td>
     </tr>
   </tbody>
     {% endfor %}
@@ -46,6 +48,12 @@
         {{ form.favourite_color.label(class="form-label") }}
         {{ form.favourite_color(class="form-control") }}
         <br>
+        {{ form.password_hash.label(class="form-label") }}
+        {{ form.password_hash(class="form-control") }}
+        <br>
+        {{ form.password_hash2.label(class="form-label") }}
+        {{ form.password_hash2(class="form-control") }}
+        <br>
         {{ form.submit(class="btn btn-secondary") }}
     </form>
 </div>
@@ -59,6 +67,7 @@
       <th scope="col">Name</th>
       <th scope="col">Email</th>
       <th scope="col">Color</th>
+      <th scope="col">Password</th>
     </tr>
   </thead>
     {% for user in all_users %}
@@ -68,6 +77,7 @@
       <td><a href="{{ url_for('update', id=user.id) }}">{{user.name}}</a></td>
       <td>{{user.email}}</td>
       <td>{{user.favourite_color}}</td>
+      <td>{{user.password_hash}}</td>
       <td><a class="btn btn-danger"     href="{{ url_for('delete', id=user.id) }}">Delete</a></td>
     </tr>
   </tbody>
