@@ -60,6 +60,12 @@ class NamerForm(FlaskForm):
     submit = SubmitField("Submit")
 
 
+class PasswordForm(FlaskForm):
+    email = StringField("What's your email?", validators=[DataRequired()])
+    password = PasswordField("What's your password?", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+
 # Home page
 @app.route('/')
 def index():
@@ -100,6 +106,29 @@ def name():
         flash("Form was submitted")
     return render_template('name.html',
                            name=name,
+                           form=form)
+
+
+@app.route('/test_pw', methods=['GET', 'POST'])
+def password():
+    email = None
+    password = None
+    pw_to_check = None
+    passed = None
+    form = PasswordForm()
+    # Validate Data form Form
+    if form.validate_on_submit():
+        email = form.email.data
+        password = form.password.data
+        pw_to_check = UsersModel.query.filter_by(email=email).first()
+        passed = check_password_hash(pw_to_check.password_hash, password)
+        form.email.data = ""
+        form.password.data = ""
+    return render_template('test_pw.html',
+                           email=email,
+                           password=password,
+                           pw_to_check=pw_to_check,
+                           passed=passed,
                            form=form)
 
 
