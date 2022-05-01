@@ -43,6 +43,12 @@ def posts():
     posts = Posts.query.order_by('date_added')
     return render_template('posts.html', posts=posts)
 
+@app.route('/posts/<int:id>')
+def post(id):
+    post = Posts.query.get_or_404(id)
+    return render_template('single-post.html', post=post)
+
+
 # Add Post
 @app.route('/add-post', methods=['GET', 'POST'])
 def add_post():
