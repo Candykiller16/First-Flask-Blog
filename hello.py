@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
+from wtforms.widgets import TextArea
 
 # Create a Flask Instance
 app = Flask(__name__)
@@ -18,8 +19,54 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 
-# Model
-class UsersModel(db.Model):
+# Posts Model
+class Posts(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255))
+    content = db.Column(db.Text)
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    author = db.Column(db.String(255))
+    slug = db.Column(db.String(255))
+
+
+# Post Form
+class PostForm(FlaskForm):
+    title = StringField("Enter title", validators=[DataRequired()])
+    content = StringField("Enter content", validators=[DataRequired()], widget=TextArea())
+    author = StringField("Enter author", validators=[DataRequired()])
+    slug = StringField("Enter slug", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+# All posts
+@app.route('/posts')
+def posts():
+    posts = Posts.query.order_by('date_added')
+    return render_template('posts.html', posts=posts)
+
+# Add Post
+@app.route('/add-post', methods=['GET', 'POST'])
+def add_post():
+    form = PostForm()
+    if form.validate_on_submit:
+        # Submit Form
+        post = Posts(title=form.title.data,
+                     content=form.content.data,
+                     author=form.author.data,
+                     slug=form.slug.data)
+        # Clear Form
+        form.title.data = ''
+        form.content.data = ''
+        form.author.data = ''
+        form.slug.data = ''
+        # Add post to database
+        db.session.add(post)
+        db.session.commit()
+        flash('Post was successfully added')
+    return render_template('add_post.html', form=form)
+
+
+# Users Model
+class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), unique=True, nullable=False)
     email = db.Column(db.String(200), unique=True, nullable=False)
@@ -120,7 +167,9 @@ def password():
     if form.validate_on_submit():
         email = form.email.data
         password = form.password.data
-        pw_to_check = UsersModel.query.filter_by(email=email).first()
+        # Get user from data
+        pw_to_check = Users.query.filter_by(email=email).first()
+        # Compare hashed password with password in form
         passed = check_password_hash(pw_to_check.password_hash, password)
         form.email.data = ""
         form.password.data = ""
@@ -138,13 +187,13 @@ def add_user():
     form = UserForm()
     # Validate Data from Form
     if form.validate_on_submit():
-        user = UsersModel.query.filter_by(email=form.email.data).first()
+        user = Users.query.filter_by(email=form.email.data).first()
         if user is None:
             hashed_password = generate_password_hash(form.password_hash.data, 'sha256')
-            user = UsersModel(name=form.name.data,
-                              email=form.email.data,
-                              favourite_color=form.favourite_color.data,
-                              password_hash=hashed_password)
+            user = Users(name=form.name.data,
+                         email=form.email.data,
+                         favourite_color=form.favourite_color.data,
+                         password_hash=hashed_password)
             db.session.add(user)
             db.session.commit()
         name = form.name.data
@@ -153,7 +202,7 @@ def add_user():
         form.favourite_color.data = ""
         form.password_hash.data = ""
         flash("User was added successfully")
-    all_users = UsersModel.query.order_by(UsersModel.date_added)
+    all_users = Users.query.order_by(Users.date_added)
     return render_template('add_user.html',
                            name=name,
                            form=form,
@@ -164,7 +213,7 @@ def add_user():
 @app.route('/update/<int:id>', methods=['GET', 'POST'])
 def update(id):
     form = UserForm()
-    user = UsersModel.query.get_or_404(id)
+    user = Users.query.get_or_404(id)
     if request.method == 'POST':
         user.name = request.form['name']
         user.email = request.form['email']
@@ -182,13 +231,13 @@ def update(id):
 
 @app.route('/delete/<int:id>')
 def delete(id):
-    user = UsersModel.query.get_or_404(id)
+    user = Users.query.get_or_404(id)
     name = None
     form = UserForm()
     try:
         db.session.delete(user)
         db.session.commit()
-        all_users = UsersModel.query.order_by(UsersModel.date_added)
+        all_users = Users.query.order_by(Users.date_added)
         flash("User deleted successfully")
         return render_template('add_user.html',
                                name=name,
