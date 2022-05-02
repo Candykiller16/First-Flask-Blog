@@ -66,7 +66,18 @@ def edit_post(id):
     else:
         return render_template('update_post.html', form=form, post=post)
 
-
+@app.route('/posts/delete/<int:id>')
+def delete_post(id):
+    post = Posts.query.get_or_404(id)
+    posts = Posts.query.order_by('date_added')
+    try:
+        db.session.delete(post)
+        db.session.commit()
+        flash("Post deleted successfully")
+        return render_template('posts.html', posts=posts)
+    except:
+        posts = Posts.query.order_by('date_added')
+        return render_template('posts.html', posts=posts)
 
 # Add Post
 @app.route('/add-post', methods=['GET', 'POST'])
