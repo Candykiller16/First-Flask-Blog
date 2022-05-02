@@ -8,8 +8,11 @@
 {% endfor %}
 
 <div class="shadow p-3 mb-5 bg-body rounded">
-  <h1>{{post.title}}</h1><br>
-  <small>By: {{post.author}}</small><br>
-  <p>{{post.content}}</p><br>
+    <h2>{{post.title}}</h2><br>
+    <small>By: {{post.author}}<br>
+        {{post.date_added}}</small><br><br>
+    <p>{{post.content}}</p>
+    <a class="btn btn-outline-secondary" href="{{url_for('edit_post', id=post.id)}}">Edit</a>
+    <a class="btn btn-outline-secondary" href="{{url_for('posts')}}">Back</a>
 </div>
 {% endblock content %}

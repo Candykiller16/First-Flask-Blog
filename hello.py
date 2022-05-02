@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, request
+from flask import Flask, render_template, flash, request, redirect, url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField
 from wtforms.validators import DataRequired, EqualTo, Length
@@ -37,16 +37,35 @@ class PostForm(FlaskForm):
     slug = StringField("Enter slug", validators=[DataRequired()])
     submit = SubmitField("Submit")
 
+
 # All posts
 @app.route('/posts')
 def posts():
     posts = Posts.query.order_by('date_added')
     return render_template('posts.html', posts=posts)
 
+
 @app.route('/posts/<int:id>')
 def post(id):
     post = Posts.query.get_or_404(id)
     return render_template('single-post.html', post=post)
+
+
+@app.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
+def edit_post(id):
+    form = PostForm()
+    post = Posts.query.get_or_404(id)
+    if request.method == 'POST':
+        post.title = request.form['title']
+        post.author = request.form['author']
+        post.slug = request.form['slug']
+        post.content = request.form['content']
+        db.session.commit()
+        flash("Post updated successfully")
+        return redirect(url_for('post', id=post.id))
+    else:
+        return render_template('update_post.html', form=form, post=post)
+
 
 
 # Add Post
