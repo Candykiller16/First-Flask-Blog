@@ -6,34 +6,9 @@
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 {% endfor %}
-{% if name %}
-<h1>User Updated</h1>
-<br>
-<table class="table table-success table-striped">
-
-  <thead>
-    <tr>
-      <th scope="col">Id</th>
-      <th scope="col">Name</th>
-      <th scope="col">Email</th>
-      <th scope="col">Color</th>
-    </tr>
-  </thead>
-    {% for user in all_users %}
-  <tbody>
-    <tr>
-      <th scope="row">{{user.id}}</th>
-      <td>{{user.name}}</td>
-      <td>{{user.email}}</td>
-      <td>{{user.favourite_color}}</td>
-    </tr>
-  </tbody>
-    {% endfor %}
-</table>
-<br>
-{% else %}
 <h1>Update User</h1>
     <br>
+{%  if id == current_user.id %}
 <div class="shadow p-3 mb-5 bg-body rounded">
     <form method="POST" action="/update/{{ user.id }}">
         {{ form.hidden_tag() }}
@@ -53,7 +28,13 @@
         <a class="btn btn-danger" href="{{ url_for('delete', id=user.id) }}">Delete</a>
     </form>
 </div>
-
-
+{% else %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    Sorry, you can't update this user's profile!!!!
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<h2>Access denied!!!</h2>
+<p>Sorry, you can't update this user's profile</p>
 {% endif %}
+
 {% endblock content %}

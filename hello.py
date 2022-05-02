@@ -262,6 +262,7 @@ def add_user():
 
 # Update User in Database
 @app.route('/update/<int:id>', methods=['GET', 'POST'])
+@login_required
 def update(id):
     form = UserForm()
     user = Users.query.get_or_404(id)
@@ -273,12 +274,12 @@ def update(id):
         try:
             db.session.commit()
             flash("User updated successfully")
-            return render_template('update.html', form=form, user=user)
+            return render_template('update.html', form=form, user=user, id=id)
         except:
             flash("Error! Try again")
-            return render_template('update.html', form=form, user=user)
+            return render_template('update.html', form=form, user=user, id=id)
     else:
-        return render_template('update.html', form=form, user=user)
+        return render_template('update.html', form=form, user=user, id=id)
 
 
 @app.route('/delete/<int:id>')
