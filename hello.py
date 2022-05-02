@@ -7,6 +7,7 @@ from datetime import datetime
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms.widgets import TextArea
+from flask_login import UserMixin, LoginManager, login_user, login_required, logout_user, current_user
 
 # Create a Flask Instance
 app = Flask(__name__)
@@ -17,6 +18,15 @@ app.config['SECRET_KEY'] = 'This is my secret key'
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return Users.query.get(user_id)
 
 
 # Posts Model
@@ -66,6 +76,7 @@ def edit_post(id):
     else:
         return render_template('update_post.html', form=form, post=post)
 
+
 @app.route('/posts/delete/<int:id>')
 def delete_post(id):
     post = Posts.query.get_or_404(id)
@@ -79,11 +90,12 @@ def delete_post(id):
         posts = Posts.query.order_by('date_added')
         return render_template('posts.html', posts=posts)
 
+
 # Add Post
 @app.route('/add-post', methods=['GET', 'POST'])
 def add_post():
     form = PostForm()
-    if form.validate_on_submit:
+    if form.validate_on_submit():
         # Submit Form
         post = Posts(title=form.title.data,
                      content=form.content.data,
@@ -102,9 +114,10 @@ def add_post():
 
 
 # Users Model
-class Users(db.Model):
+class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), unique=True, nullable=False)
+    username = db.Column(db.String(200), unique=True)
     email = db.Column(db.String(200), unique=True, nullable=False)
     favourite_color = db.Column(db.String(200))
     date_added = db.Column(db.DateTime(), default=datetime.utcnow)
@@ -128,12 +141,19 @@ class Users(db.Model):
 # Users Form
 class UserForm(FlaskForm):
     name = StringField("Enter your name", validators=[DataRequired()])
+    username = StringField("Enter your username", validators=[DataRequired()])
     email = StringField("Enter your email", validators=[DataRequired()])
     favourite_color = StringField("Enter your favourite color", validators=[DataRequired()])
     password_hash = PasswordField("Enter your password", validators=[DataRequired(),
                                                                      EqualTo('password_hash2',
                                                                              message='Passwords Must Match')])
     password_hash2 = PasswordField("Submit your password", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+
+class LoginForm(FlaskForm):
+    username = StringField("Enter your username", validators=[DataRequired()])
+    password = PasswordField("Enter your username", validators=[DataRequired()])
     submit = SubmitField("Submit")
 
 
@@ -147,6 +167,38 @@ class PasswordForm(FlaskForm):
     email = StringField("What's your email?", validators=[DataRequired()])
     password = PasswordField("What's your password?", validators=[DataRequired()])
     submit = SubmitField("Submit")
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = Users.query.filter_by(username=form.username.data).first()
+        if user:
+            # Check hash
+            if check_password_hash(user.password_hash, form.password.data):
+                login_user(user)
+                flash('Logged in successfully.')
+                return redirect(url_for('dashboard'))
+            else:
+                flash('Something wrong - Try again!')
+        else:
+            flash("That user doesn't exist!")
+    return render_template('login.html', form=form)
+
+
+@app.route('/logout', methods=['GET', 'POST'])
+@login_required
+def logout():
+    logout_user()
+    flash('You have been successfully logged out!!!')
+    return redirect(url_for('login'))
+
+#
+@app.route('/dashboard', methods=['GET', 'POST'])
+@login_required
+def dashboard():
+    return render_template('dashboard.html')
 
 
 # Home page
@@ -227,6 +279,7 @@ def add_user():
         if user is None:
             hashed_password = generate_password_hash(form.password_hash.data, 'sha256')
             user = Users(name=form.name.data,
+                         username=form.username.data,
                          email=form.email.data,
                          favourite_color=form.favourite_color.data,
                          password_hash=hashed_password)
@@ -234,6 +287,7 @@ def add_user():
             db.session.commit()
         name = form.name.data
         form.name.data = ""
+        form.username.data = ""
         form.email.data = ""
         form.favourite_color.data = ""
         form.password_hash.data = ""

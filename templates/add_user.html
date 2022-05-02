@@ -11,36 +11,41 @@
 <br>
 <table class="table table-success table-striped">
 
-  <thead>
+    <thead>
     <tr>
-      <th scope="col">Id</th>
-      <th scope="col">Name</th>
-      <th scope="col">Email</th>
-      <th scope="col">Color</th>
-      <th scope="col">Password</th>
+        <th scope="col">Id</th>
+        <th scope="col">Name</th>
+        <th scope="col">Username</th>
+        <th scope="col">Email</th>
+        <th scope="col">Color</th>
+        <th scope="col">Password</th>
     </tr>
-  </thead>
+    </thead>
     {% for user in all_users %}
-  <tbody>
+    <tbody>
     <tr>
-      <th scope="row">{{user.id}}</th>
-      <td><a href="{{ url_for('update', id=user.id) }}">{{user.name}}</a></td>
-      <td>{{user.email}}</td>
-      <td>{{user.favourite_color}}</td>
-      <td>{{user.password_hash}}</td>
+        <th scope="row">{{user.id}}</th>
+        <td><a href="{{ url_for('update', id=user.id) }}">{{user.name}}</a></td>
+        <td>{{user.username}}</td>
+        <td>{{user.email}}</td>
+        <td>{{user.favourite_color}}</td>
+        <td>{{user.password_hash}}</td>
     </tr>
-  </tbody>
+    </tbody>
     {% endfor %}
 </table>
 <br>
 {% else %}
 <h1>Users List:</h1>
-    <br>
+<br>
 <div class="shadow p-3 mb-5 bg-body rounded">
     <form method="POST">
         {{ form.hidden_tag() }}
         {{ form.name.label(class="form-label") }}
         {{ form.name(class="form-control") }}
+        <br>
+        {{ form.username.label(class="form-label") }}
+        {{ form.username(class="form-control") }}
         <br>
         {{ form.email.label(class="form-label") }}
         {{ form.email(class="form-control") }}
@@ -61,26 +66,28 @@
 
 <table class="table table-hover">
 
-  <thead>
+    <thead>
     <tr>
-      <th scope="col">Id</th>
-      <th scope="col">Name</th>
-      <th scope="col">Email</th>
-      <th scope="col">Color</th>
-      <th scope="col">Password</th>
+        <th scope="col">Id</th>
+        <th scope="col">Name</th>
+        <th scope="col">Username</th>
+        <th scope="col">Email</th>
+        <th scope="col">Color</th>
+        <th scope="col">Password</th>
     </tr>
-  </thead>
+    </thead>
     {% for user in all_users %}
-  <tbody>
+    <tbody>
     <tr>
-      <th scope="row">{{user.id}}</th>
-      <td><a href="{{ url_for('update', id=user.id) }}">{{user.name}}</a></td>
-      <td>{{user.email}}</td>
-      <td>{{user.favourite_color}}</td>
-      <td>{{user.password_hash}}</td>
-      <td><a class="btn btn-danger"     href="{{ url_for('delete', id=user.id) }}">Delete</a></td>
+        <th scope="row">{{user.id}}</th>
+        <td><a href="{{ url_for('update', id=user.id) }}">{{user.name}}</a></td>
+        <td>{{user.username}}</td>
+        <td>{{user.email}}</td>
+        <td>{{user.favourite_color}}</td>
+        <td>{{user.password_hash}}</td>
+        <td><a class="btn btn-danger" href="{{ url_for('delete', id=user.id) }}">Delete</a></td>
     </tr>
-  </tbody>
+    </tbody>
     {% endfor %}
 </table>
 
