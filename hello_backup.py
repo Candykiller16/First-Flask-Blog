@@ -1,10 +1,13 @@
 from flask import Flask, render_template, flash, request, redirect, url_for
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField, PasswordField
+from wtforms.validators import DataRequired, EqualTo, Length
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
+from wtforms.widgets import TextArea
 from flask_login import UserMixin, LoginManager, login_user, login_required, logout_user, current_user
-from forms import PostForm, UserForm, LoginForm, NamerForm, PasswordForm
 
 # Create a Flask Instance
 app = Flask(__name__)
@@ -34,6 +37,15 @@ class Posts(db.Model):
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     author = db.Column(db.String(255))
     slug = db.Column(db.String(255))
+
+
+# Post Form
+class PostForm(FlaskForm):
+    title = StringField("Enter title", validators=[DataRequired()])
+    content = StringField("Enter content", validators=[DataRequired()], widget=TextArea())
+    author = StringField("Enter author", validators=[DataRequired()])
+    slug = StringField("Enter slug", validators=[DataRequired()])
+    submit = SubmitField("Submit")
 
 
 # All posts
@@ -129,6 +141,37 @@ class Users(db.Model, UserMixin):
         return '<Name %r>' % self.name
 
 
+# Users Form
+class UserForm(FlaskForm):
+    name = StringField("Enter your name", validators=[DataRequired()])
+    username = StringField("Enter your username", validators=[DataRequired()])
+    email = StringField("Enter your email", validators=[DataRequired()])
+    favourite_color = StringField("Enter your favourite color", validators=[DataRequired()])
+    password_hash = PasswordField("Enter your password", validators=[DataRequired(),
+                                                                     EqualTo('password_hash2',
+                                                                             message='Passwords Must Match')])
+    password_hash2 = PasswordField("Submit your password", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+
+class LoginForm(FlaskForm):
+    username = StringField("Enter your username", validators=[DataRequired()])
+    password = PasswordField("Enter your username", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+
+# Create a Form Class
+class NamerForm(FlaskForm):
+    name = StringField("What's your name?", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+
+class PasswordForm(FlaskForm):
+    email = StringField("What's your email?", validators=[DataRequired()])
+    password = PasswordField("What's your password?", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -153,7 +196,6 @@ def logout():
     logout_user()
     flash('You have been successfully logged out!!!')
     return redirect(url_for('login'))
-
 
 #
 @app.route('/dashboard', methods=['GET', 'POST'])
