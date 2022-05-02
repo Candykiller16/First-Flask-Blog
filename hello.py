@@ -62,6 +62,7 @@ def post(id):
 
 
 @app.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
 def edit_post(id):
     form = PostForm()
     post = Posts.query.get_or_404(id)
@@ -78,6 +79,7 @@ def edit_post(id):
 
 
 @app.route('/posts/delete/<int:id>')
+@login_required
 def delete_post(id):
     post = Posts.query.get_or_404(id)
     posts = Posts.query.order_by('date_added')
@@ -93,6 +95,7 @@ def delete_post(id):
 
 # Add Post
 @app.route('/add-post', methods=['GET', 'POST'])
+@login_required
 def add_post():
     form = PostForm()
     if form.validate_on_submit():
@@ -306,6 +309,7 @@ def update(id):
     user = Users.query.get_or_404(id)
     if request.method == 'POST':
         user.name = request.form['name']
+        user.username = request.form['username']
         user.email = request.form['email']
         user.favourite_color = request.form['favourite_color']
         try:
