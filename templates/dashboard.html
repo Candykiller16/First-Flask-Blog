@@ -6,7 +6,21 @@
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 {% endfor %}
-<h1>You were successfully logged in</h1>
+<h2>Dashboard</h2>
 <br>
-<a class="btn btn-outline-warning" href="{{ url_for('logout') }}">LogOut</a>
+<div class="card">
+  <div class="card-header">
+      {{current_user.name}}
+  </div>
+  <div class="card-body">
+    <h5 class="card-title">Welcome to your dashboard</h5>
+    <p class="card-text">
+        <strong>Username:</strong>{{current_user.username}}<br>
+        <strong>Email:</strong>{{current_user.email}}<br>
+        <strong>Favourite Color:</strong>{{current_user.favourite_color}}<br>
+        <strong>Date Joined:</strong>{{current_user.date_added}}<br>
+    </p>
+    <a href="{{ url_for('logout') }}" class="btn btn-warning">Logout</a>
+  </div>
+</div>
 {% endblock content %}
