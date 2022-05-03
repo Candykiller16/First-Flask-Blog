@@ -46,7 +46,6 @@ def edit_post(id):
     post = Posts.query.get_or_404(id)
     if form.validate_on_submit():
         post.title = form.title.data
-        # post.author = form.author.data
         post.slug = form.slug.data
         post.content = form.content.data
         # Update Database
@@ -54,10 +53,15 @@ def edit_post(id):
         db.session.commit()
         flash("Post Has Been Updated!")
         return redirect(url_for('post', id=post.id))
-    form.title.data = post.title
-    form.slug.data = post.slug
-    form.content.data = post.content
-    return render_template("update_post.html", post=post, form=form)
+    if current_user.id == post.poster.id:
+        form.title.data = post.title
+        form.slug.data = post.slug
+        form.content.data = post.content
+        return render_template("update_post.html", post=post, form=form)
+    else:
+        flash("You aren't authorized to edit this post ")
+        posts = Posts.query.order_by('date_added')
+        return render_template('posts.html', posts=posts)
 
 
 @app.route('/posts/delete/<int:id>')
