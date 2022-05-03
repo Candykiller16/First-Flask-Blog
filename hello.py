@@ -64,13 +64,19 @@ def edit_post(id):
 @login_required
 def delete_post(id):
     post = Posts.query.get_or_404(id)
-    posts = Posts.query.order_by('date_added')
-    try:
-        db.session.delete(post)
-        db.session.commit()
-        flash("Post deleted successfully")
-        return render_template('posts.html', posts=posts)
-    except:
+    if current_user.id == post.poster.id:
+        try:
+            db.session.delete(post)
+            db.session.commit()
+            flash("Post deleted successfully")
+            posts = Posts.query.order_by('date_added')
+            return render_template('posts.html', posts=posts)
+        except:
+            flash("Whoops something wrong happened")
+            posts = Posts.query.order_by('date_added')
+            return render_template('posts.html', posts=posts)
+    else:
+        flash("Sorry, you can't delete this post!!!")
         posts = Posts.query.order_by('date_added')
         return render_template('posts.html', posts=posts)
 
