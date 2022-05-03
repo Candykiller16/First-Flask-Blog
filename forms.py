@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField
 from wtforms.validators import DataRequired, EqualTo
 from wtforms.widgets import TextArea
-
+from flask_ckeditor import CKEditorField
 
 class SearchForm(FlaskForm):
     searched = StringField("Search", validators=[DataRequired()])
@@ -11,8 +11,9 @@ class SearchForm(FlaskForm):
 
 class PostForm(FlaskForm):
     title = StringField("Enter title", validators=[DataRequired()])
-    content = StringField("Enter content", validators=[DataRequired()], widget=TextArea())
-    author = StringField("Enter author")
+    # content = StringField("Enter content", validators=[DataRequired()], widget=TextArea())
+    content = CKEditorField("Enter content", validators=[DataRequired()])
+    # author = StringField("Enter author")
     slug = StringField("Enter slug", validators=[DataRequired()])
     submit = SubmitField("Submit")
 

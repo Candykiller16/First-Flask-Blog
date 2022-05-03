@@ -4,10 +4,14 @@ from datetime import datetime
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, LoginManager, login_user, login_required, logout_user, current_user
+from flask_ckeditor import CKEditor
 from forms import PostForm, UserForm, LoginForm, NamerForm, PasswordForm, SearchForm
+
 
 # Create a Flask Instance
 app = Flask(__name__)
+# Add Ckeditor
+ckeditor = CKEditor(app)
 # Database
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.sqlite"
 # Secret Key

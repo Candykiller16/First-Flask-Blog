@@ -11,7 +11,7 @@
     <h2>{{post.title}}</h2><br>
     <small>By: {{post.poster.name}}<br>
         {{post.date_added}}</small><br><br>
-    <p>{{post.content}}</p>
+    <p>{{post.content|safe}}</p>
     <a class="btn btn-outline-info" href="{{url_for('posts')}}">Back</a>
     {% if current_user.id == post.poster.id %}
     <a class="btn btn-outline-secondary" href="{{url_for('edit_post', id=post.id)}}">Edit</a>
