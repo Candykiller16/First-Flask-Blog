@@ -4,6 +4,11 @@ from wtforms.validators import DataRequired, EqualTo
 from wtforms.widgets import TextArea
 
 
+class SearchForm(FlaskForm):
+    searched = StringField("Search", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+
 class PostForm(FlaskForm):
     title = StringField("Enter title", validators=[DataRequired()])
     content = StringField("Enter content", validators=[DataRequired()], widget=TextArea())
