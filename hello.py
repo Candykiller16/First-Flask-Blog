@@ -26,16 +26,6 @@ def load_user(user_id):
     return Users.query.get(user_id)
 
 
-# Posts Model
-class Posts(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255))
-    content = db.Column(db.Text)
-    date_added = db.Column(db.DateTime, default=datetime.utcnow)
-    author = db.Column(db.String(255))
-    slug = db.Column(db.String(255))
-
-
 # All posts
 @app.route('/posts')
 def posts():
@@ -54,16 +44,20 @@ def post(id):
 def edit_post(id):
     form = PostForm()
     post = Posts.query.get_or_404(id)
-    if request.method == 'POST':
-        post.title = request.form['title']
-        post.author = request.form['author']
-        post.slug = request.form['slug']
-        post.content = request.form['content']
+    if form.validate_on_submit():
+        post.title = form.title.data
+        # post.author = form.author.data
+        post.slug = form.slug.data
+        post.content = form.content.data
+        # Update Database
+        db.session.add(post)
         db.session.commit()
-        flash("Post updated successfully")
+        flash("Post Has Been Updated!")
         return redirect(url_for('post', id=post.id))
-    else:
-        return render_template('update_post.html', form=form, post=post)
+    form.title.data = post.title
+    form.slug.data = post.slug
+    form.content.data = post.content
+    return render_template("update_post.html", post=post, form=form)
 
 
 @app.route('/posts/delete/<int:id>')
@@ -88,45 +82,20 @@ def add_post():
     form = PostForm()
     if form.validate_on_submit():
         # Submit Form
+        poster = current_user.id
         post = Posts(title=form.title.data,
                      content=form.content.data,
-                     author=form.author.data,
+                     poster_id=poster,
                      slug=form.slug.data)
         # Clear Form
         form.title.data = ''
         form.content.data = ''
-        form.author.data = ''
         form.slug.data = ''
         # Add post to database
         db.session.add(post)
         db.session.commit()
         flash('Post was successfully added')
     return render_template('add_post.html', form=form)
-
-
-# Users Model
-class Users(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(200), unique=True, nullable=False)
-    username = db.Column(db.String(200), unique=True)
-    email = db.Column(db.String(200), unique=True, nullable=False)
-    favourite_color = db.Column(db.String(200))
-    date_added = db.Column(db.DateTime(), default=datetime.utcnow)
-    password_hash = db.Column(db.String(200))
-
-    @property
-    def password(self):
-        raise AttributeError('password is not readable attribute')
-
-    @password.setter
-    def password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def verify_password(self, password):
-        return check_password_hash(self.password_hash, password)
-
-    def __repr__(self):
-        return '<Name %r>' % self.name
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -302,3 +271,40 @@ def delete(id):
                                name=name,
                                form=form,
                                all_users=all_users)
+
+
+# Posts Model
+class Posts(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255))
+    content = db.Column(db.Text)
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    # author = db.Column(db.String(255))
+    slug = db.Column(db.String(255))
+    poster_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+
+# Users Model
+class Users(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), unique=True, nullable=False)
+    username = db.Column(db.String(200), unique=True)
+    email = db.Column(db.String(200), unique=True, nullable=False)
+    favourite_color = db.Column(db.String(200))
+    date_added = db.Column(db.DateTime(), default=datetime.utcnow)
+    password_hash = db.Column(db.String(200))
+    posts = db.relationship('Posts', backref='poster')
+
+    @property
+    def password(self):
+        raise AttributeError('password is not readable attribute')
+
+    @password.setter
+    def password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def __repr__(self):
+        return '<Name %r>' % self.name

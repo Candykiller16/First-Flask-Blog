@@ -10,7 +10,7 @@
 {% for post in posts %}
 <div class="shadow p-3 mb-5 bg-body rounded">
   <h2><a href="{{url_for('post', id=post.id)}}">{{post.title}}</a></h2><br>
-  <small>By: {{post.author}}<br>
+  <small>By: {{post.poster.name}}<br>
   {{post.date_added}}</small><br><br>
   <p>{{post.content}}</p>
     <a class="btn btn-outline-primary" href="{{url_for('post', id=post.id)}}">View</a>
