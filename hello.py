@@ -33,6 +33,17 @@ def base():
     return dict(form=form)
 
 
+# Admin Page
+@app.route('/admin')
+@login_required
+def admin():
+    if current_user.id == 1:
+        return render_template('admin.html')
+    else:
+        flash('Sorry, You are not admin')
+        return redirect(url_for('dashboard'))
+
+
 # Search function
 @app.route('/search', methods=["POST"])
 def search():
