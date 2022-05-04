@@ -13,17 +13,27 @@
         {{current_user.name}}
     </div>
     <div class="card-body">
-        <h5 class="card-title">Welcome to your dashboard</h5>
         <p class="card-text">
-            <strong>Username:</strong> {{current_user.username}}<br>
-            <strong>Email:</strong> {{current_user.email}}<br>
-            <strong>ID:</strong> {{current_user.id}}<br>
-            <strong>Favourite Color:</strong> {{current_user.favourite_color}}<br>
-            <strong>Date Joined:</strong> {{current_user.date_added}}<br>
-        </p>
-        <a href="{{ url_for('logout') }}" class="btn btn-outline-warning">Logout</a>
-        <a href="{{ url_for('update', id=current_user.id) }}" class="btn btn-outline-secondary">Update</a>
-        <a href="{{ url_for('delete', id=current_user.id)}}" class="btn btn-outline-danger">Delete</a>
+        <div class="conteiner">
+            <div class="row">
+                <div class="col-8">
+                    <strong>Username:</strong> {{current_user.username}}<br>
+                    <strong>Email:</strong> {{current_user.email}}<br>
+                    <strong>ID:</strong> {{current_user.id}}<br>
+                    <strong>Favourite Color:</strong> {{current_user.favourite_color}}<br>
+                    <strong>Date Joined:</strong> {{current_user.date_added}}<br>
+                    </p>
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-warning">Logout</a>
+                    <a href="{{ url_for('update', id=current_user.id) }}" class="btn btn-outline-secondary">Update</a>
+                    <a href="{{ url_for('delete', id=current_user.id)}}" class="btn btn-outline-danger">Delete</a>
+                    <br><br>
+                </div>
+                <div class="col-4">
+                    <img src="{{url_for('static', filename='images/default_profile_pic.png')}}" width="200px" align="right"
+                         alt="">
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock content %}
