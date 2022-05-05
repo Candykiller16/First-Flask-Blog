@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField
+from wtforms import StringField, SubmitField, PasswordField, TextAreaField
 from wtforms.validators import DataRequired, EqualTo
 from wtforms.widgets import TextArea
 
@@ -22,6 +22,7 @@ class UserForm(FlaskForm):
     username = StringField("Enter your username", validators=[DataRequired()])
     email = StringField("Enter your email", validators=[DataRequired()])
     favourite_color = StringField("Enter your favourite color", validators=[DataRequired()])
+    about = TextAreaField("About")
     password_hash = PasswordField("Enter your password", validators=[DataRequired(),
                                                                      EqualTo('password_hash2',
                                                                              message='Passwords Must Match')])

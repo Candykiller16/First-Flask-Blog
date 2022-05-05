@@ -24,6 +24,9 @@
         {{ form.favourite_color.label(class="form-label") }}
         {{ form.favourite_color(class="form-control", value=user.favourite_color) }}
         <br>
+        {{ form.about.label(class="form-label") }}
+        {{ form.about(class="form-control", value=user.about) }}
+        <br>
         {{ form.submit(class="btn btn-secondary") }}
         <a class="btn btn-danger" href="{{ url_for('delete', id=user.id) }}">Delete</a>
     </form>

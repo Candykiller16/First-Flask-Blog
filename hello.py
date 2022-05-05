@@ -252,6 +252,7 @@ def add_user():
                          username=form.username.data,
                          email=form.email.data,
                          favourite_color=form.favourite_color.data,
+                         about=form.about.data,
                          password_hash=hashed_password)
             db.session.add(user)
             db.session.commit()
@@ -280,6 +281,7 @@ def update(id):
         user.username = request.form['username']
         user.email = request.form['email']
         user.favourite_color = request.form['favourite_color']
+        user.about = request.form['about']
         try:
             db.session.commit()
             flash("User updated successfully")
@@ -331,6 +333,7 @@ class Users(db.Model, UserMixin):
     username = db.Column(db.String(200), unique=True)
     email = db.Column(db.String(200), unique=True, nullable=False)
     favourite_color = db.Column(db.String(200))
+    about = db.Column(db.Text, nullable=True)
     date_added = db.Column(db.DateTime(), default=datetime.utcnow)
     password_hash = db.Column(db.String(200))
     posts = db.relationship('Posts', backref='poster')
