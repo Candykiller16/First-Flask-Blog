@@ -260,6 +260,7 @@ def add_user():
                          password_hash=hashed_password)
             db.session.add(user)
             db.session.commit()
+            return redirect(url_for('login'))
         name = form.name.data
         form.name.data = ""
         form.username.data = ""
@@ -299,35 +300,41 @@ def update(id):
         try:
             db.session.commit()
             flash("User updated successfully")
-            return render_template('update.html', form=form, user=user, id=id)
+            # return render_template('update.html', form=form, user=user, id=id)
+            return redirect(url_for('dashboard'))
         except:
             flash("Error! Try again")
             return render_template('update.html', form=form, user=user, id=id)
+
     else:
         return render_template('update.html', form=form, user=user, id=id)
 
 
 @app.route('/delete/<int:id>')
+@login_required
 def delete(id):
-    user = Users.query.get_or_404(id)
-    name = None
-    form = UserForm()
-    try:
-        db.session.delete(user)
-        db.session.commit()
-        all_users = Users.query.order_by(Users.date_added)
-        flash("User deleted successfully")
-        return render_template('add_user.html',
-                               name=name,
-                               form=form,
-                               all_users=all_users)
-    except:
-        flash("We have some problems!!! Try again.")
-        return render_template('add_user.html',
-                               name=name,
-                               form=form,
-                               all_users=all_users)
-
+    if id == current_user.id:
+        user = Users.query.get_or_404(id)
+        name = None
+        form = UserForm()
+        try:
+            db.session.delete(user)
+            db.session.commit()
+            all_users = Users.query.order_by(Users.date_added)
+            flash("User deleted successfully")
+            return render_template('add_user.html',
+                                   name=name,
+                                   form=form,
+                                   all_users=all_users)
+        except:
+            flash("We have some problems!!! Try again.")
+            return render_template('add_user.html',
+                                   name=name,
+                                   form=form,
+                                   all_users=all_users)
+    else:
+        flash("You can't deleted other users")
+        return redirect(url_for('dashboard'))
 
 # Posts Model
 class Posts(db.Model):
