@@ -287,25 +287,29 @@ def update(id):
         user.email = request.form['email']
         user.favourite_color = request.form['favourite_color']
         user.about = request.form['about']
-        user.profile_picture = request.files['profile_picture']
-        # Grab image name to save in DB
-        picture_filename = secure_filename(user.profile_picture.filename)
-        # Set UUID
-        picture_name = str(uuid1()) + '_' + picture_filename
-        # Save that image
-        user.profile_picture.save(os.path.join(app.config['UPLOAD_FOLDER'], picture_name))
-        # Change it to a string to save in DB
-        user.profile_picture = picture_name
+        if request.files['profile_picture']:
+            user.profile_picture = request.files['profile_picture']
+            # Grab image name to save in DB
+            picture_filename = secure_filename(user.profile_picture.filename)
+            # Set UUID
+            picture_name = str(uuid1()) + '_' + picture_filename
+            # Save that image
+            user.profile_picture.save(os.path.join(app.config['UPLOAD_FOLDER'], picture_name))
+            # Change it to a string to save in DB
+            user.profile_picture = picture_name
 
-        try:
+            try:
+                db.session.commit()
+                flash("User updated successfully")
+                # return render_template('update.html', form=form, user=user, id=id)
+                return redirect(url_for('dashboard'))
+            except:
+                flash("Error! Try again")
+                return render_template('update.html', form=form, user=user, id=id)
+        else:
             db.session.commit()
             flash("User updated successfully")
-            # return render_template('update.html', form=form, user=user, id=id)
             return redirect(url_for('dashboard'))
-        except:
-            flash("Error! Try again")
-            return render_template('update.html', form=form, user=user, id=id)
-
     else:
         return render_template('update.html', form=form, user=user, id=id)
 
