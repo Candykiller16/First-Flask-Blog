@@ -10,7 +10,7 @@
     <br>
 {%  if id == current_user.id %}
 <div class="shadow p-3 mb-5 bg-body rounded">
-    <form method="POST" action="/update/{{ user.id }}">
+    <form method="POST" action="/update/{{ user.id }}", enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         {{ form.name.label(class="form-label") }}
         {{ form.name(class="form-control", value=user.name) }}
@@ -26,6 +26,9 @@
         <br>
         {{ form.about.label(class="form-label") }}
         {{ form.about(class="form-control", value=user.about) }}
+        <br>
+        {{ form.profile_picture.label(class="form-label") }}
+        {{ form.profile_picture(class="form-control", value=user.profile_picture) }}
         <br>
         {{ form.submit(class="btn btn-secondary") }}
         <a class="btn btn-danger" href="{{ url_for('delete', id=user.id) }}">Delete</a>

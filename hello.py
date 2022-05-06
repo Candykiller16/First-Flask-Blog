@@ -5,14 +5,17 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, LoginManager, login_user, login_required, logout_user, current_user
 from forms import PostForm, UserForm, LoginForm, NamerForm, PasswordForm, SearchForm
-
+from werkzeug.utils import secure_filename
+from uuid import uuid1
+import os
 # Create a Flask Instance
 app = Flask(__name__)
 # Database
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.sqlite"
 # Secret Key
 app.config['SECRET_KEY'] = 'This is my secret key'
-
+UPLOAD_FOLDER = 'static/images/'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
@@ -135,6 +138,7 @@ def add_post():
         db.session.add(post)
         db.session.commit()
         flash('Post was successfully added')
+        return redirect(url_for('posts'))
     return render_template('add_post.html', form=form)
 
 
@@ -282,6 +286,16 @@ def update(id):
         user.email = request.form['email']
         user.favourite_color = request.form['favourite_color']
         user.about = request.form['about']
+        user.profile_picture = request.files['profile_picture']
+        # Grab image name to save in DB
+        picture_filename = secure_filename(user.profile_picture.filename)
+        # Set UUID
+        picture_name = str(uuid1()) + '_' + picture_filename
+        # Save that image
+        user.profile_picture.save(os.path.join(app.config['UPLOAD_FOLDER'], picture_name))
+        # Change it to a string to save in DB
+        user.profile_picture = picture_name
+
         try:
             db.session.commit()
             flash("User updated successfully")
@@ -335,6 +349,7 @@ class Users(db.Model, UserMixin):
     favourite_color = db.Column(db.String(200))
     about = db.Column(db.Text, nullable=True)
     date_added = db.Column(db.DateTime(), default=datetime.utcnow)
+    profile_picture = db.Column(db.String(), nullable=True)
     password_hash = db.Column(db.String(200))
     posts = db.relationship('Posts', backref='poster')
 

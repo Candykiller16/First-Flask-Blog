@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, TextAreaField
 from wtforms.validators import DataRequired, EqualTo
 from wtforms.widgets import TextArea
+from flask_wtf.file import FileField
 
 
 class SearchForm(FlaskForm):
@@ -27,6 +28,7 @@ class UserForm(FlaskForm):
                                                                      EqualTo('password_hash2',
                                                                              message='Passwords Must Match')])
     password_hash2 = PasswordField("Submit your password", validators=[DataRequired()])
+    profile_picture = FileField("Profile Picture")
     submit = SubmitField("Submit")
 
 
