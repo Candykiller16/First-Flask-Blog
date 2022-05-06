@@ -12,9 +12,31 @@
     <small>By: {{post.poster.name}}<br>
         {{post.date_added}}</small><br><br>
     <p>{{post.content|safe }}</p><br>
-    {% if post.poster.about %}
-        {{ post.poster.about }}<br><br>
-    {% endif %}
+    <div class="card mb-3" style="max-width: 540px;">
+        <div class="row no-gutters">
+            <div class="col-md-4">
+                {% if post.poster.profile_picture %}
+                <img src="{{url_for('static', filename='images/' + post.poster.profile_picture)}}"
+                     class="img-fluid rounded-start" alt="...">
+                {% else %}
+                <img src="{{url_for('static', filename='images/default_profile_pic.png')}}"
+                     class="img-fluid rounded-start" alt="...">
+                {% endif %}
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">{{ post.poster.name }}</h5>
+                    {% if post.poster.about %}
+                    <p class="card-text">{{ post.poster.about }}</p>
+                    {% else %}
+                    <p class="card-text">Author has no profile yet...</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+
     <a class="btn btn-outline-info" href="{{url_for('posts')}}">Back</a>
     {% if current_user.id == post.poster.id %}
     <a class="btn btn-outline-secondary" href="{{url_for('edit_post', id=post.id)}}">Edit</a>
